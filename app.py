@@ -24,7 +24,7 @@ h2 { font-size: 3rem !important; }
 topics = ["Climate change", "AI ethics", "Space exploration", "Minimum wage", "Social media addiction"]
 if "last_topic" not in st.session_state:
     st.session_state.last_topic = None
-st.title("Speak for a Topic")
+st.title("Speak on a Topic")
 
 if st.button("Give me a topic"):
     choice = random.choice(topics)
