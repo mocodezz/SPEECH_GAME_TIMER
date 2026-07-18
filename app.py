@@ -1,3 +1,5 @@
+from streamlit_webrtc import webrtc_streamer
+import av
 import time
 import streamlit as st
 import random
@@ -24,9 +26,28 @@ h2 { font-size: 3rem !important; }
 topics = ["Climate change", "AI ethics", "Space exploration", "Minimum wage", "Social media addiction"]
 if "last_topic" not in st.session_state:
     st.session_state.last_topic = None
+if "running" not in st.session_state:
+    st.session_state.running = False
+
 st.title("Speak on a Topic")
 
+def video_frame_callback(frame):
+    img = frame.to_ndarray(format="bgr24")
+    img = img[:, ::-1, :]
+    return av.VideoFrame.from_ndarray(img, format="bgr24")
+
 if st.button("Give me a topic"):
+    st.session_state.running = True
+
+if st.session_state.running:
+    camera_placeholder = st.empty()
+    with camera_placeholder.container():
+        webrtc_streamer(
+            key="mirror",
+            video_frame_callback=video_frame_callback,
+            media_stream_constraints={"video": True, "audio": False},
+        )
+
     choice = random.choice(topics)
     while choice == st.session_state.last_topic:
         choice = random.choice(topics)
@@ -46,3 +67,6 @@ if st.button("Give me a topic"):
         timer_placeholder.metric("Time left", f"{seconds_left}s")
         time.sleep(1)
     timer_placeholder.error("Time's up!")
+
+    camera_placeholder.empty()
+    st.session_state.running = False
